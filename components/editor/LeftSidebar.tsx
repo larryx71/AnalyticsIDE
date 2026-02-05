@@ -30,7 +30,7 @@ export function LeftSidebar({
       </div>
 
       {/* Feature Flags Panel - fixed max height, scrollable */}
-      <div className="flex-shrink-0 max-h-[40%] overflow-hidden">
+      <div className="flex-shrink-0 max-h-[55%] overflow-hidden">
         <FeatureFlagsPanel
           fileName={selectedFile?.name || null}
           onFlagToggle={onFlagToggle}
