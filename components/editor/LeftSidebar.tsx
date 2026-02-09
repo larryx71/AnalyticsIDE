@@ -1,6 +1,7 @@
 "use client";
 
 import { SampleFile } from "@/lib/mock-data/sample-code";
+import { FeatureFlag } from "@/lib/mock-data/feature-flags";
 import { FileExplorer } from "./FileExplorer";
 import { FeatureFlagsPanel } from "./FeatureFlagsPanel";
 
@@ -10,6 +11,7 @@ interface LeftSidebarProps {
   onFlagToggle?: (flagId: string, enabled: boolean) => void;
   onFlagRemove?: (flagId: string) => void;
   onLineClick?: (line: number) => void;
+  onViewInsights?: (flag: FeatureFlag) => void;
 }
 
 export function LeftSidebar({
@@ -18,6 +20,7 @@ export function LeftSidebar({
   onFlagToggle,
   onFlagRemove,
   onLineClick,
+  onViewInsights,
 }: LeftSidebarProps) {
   return (
     <div className="h-full flex flex-col border-r border-border bg-card/50 overflow-hidden">
@@ -36,6 +39,7 @@ export function LeftSidebar({
           onFlagToggle={onFlagToggle}
           onFlagRemove={onFlagRemove}
           onLineClick={onLineClick}
+          onViewInsights={onViewInsights}
         />
       </div>
     </div>

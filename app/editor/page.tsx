@@ -5,8 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { CodeEditor } from "@/components/editor/CodeEditor";
 import { AnalyticsPanel } from "@/components/editor/AnalyticsPanel";
 import { LeftSidebar } from "@/components/editor/LeftSidebar";
+import { FlagInsightsDashboard } from "@/components/editor/FlagInsightsDashboard";
 import { sampleFiles, SampleFile } from "@/lib/mock-data/sample-code";
 import { fileAnalytics, FileAnalytics } from "@/lib/mock-data/analytics";
+import { FeatureFlag } from "@/lib/mock-data/feature-flags";
 import { Button } from "@/components/ui/button";
 import { PanelRightClose, PanelRight } from "lucide-react";
 
@@ -27,11 +29,13 @@ function EditorContent() {
   );
   const [highlightedEvent, setHighlightedEvent] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(true);
+  const [selectedFlagForInsights, setSelectedFlagForInsights] = useState<FeatureFlag | null>(null);
 
   const handleSelectFile = (file: SampleFile) => {
     setSelectedFile(file);
     setAnalytics(fileAnalytics[file.name] || null);
     setHighlightedEvent(null);
+    setSelectedFlagForInsights(null); // Close insights when switching files
   };
 
   const handleEventHover = (eventName: string | null) => {
@@ -53,6 +57,14 @@ function EditorContent() {
     console.log(`Navigate to line ${line}`);
   };
 
+  const handleViewFlagInsights = (flag: FeatureFlag) => {
+    setSelectedFlagForInsights(flag);
+  };
+
+  const handleCloseFlagInsights = () => {
+    setSelectedFlagForInsights(null);
+  };
+
   return (
     <div className="h-[calc(100vh-3.5rem)] flex">
       {/* Left Sidebar with File Explorer and Feature Flags */}
@@ -63,48 +75,56 @@ function EditorContent() {
           onFlagToggle={handleFlagToggle}
           onFlagRemove={handleFlagRemove}
           onLineClick={handleLineClick}
+          onViewInsights={handleViewFlagInsights}
         />
       </div>
 
       {/* Main Editor Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Editor Toolbar */}
-        <div className="h-10 flex items-center justify-between px-4 border-b border-border bg-card/50">
-          <div className="flex items-center gap-2">
-            {selectedFile && (
-              <>
-                <span className="text-sm font-medium">{selectedFile.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {selectedFile.path}
-                </span>
-              </>
-            )}
+        {/* Editor Toolbar - only show when not viewing insights */}
+        {!selectedFlagForInsights && (
+          <div className="h-10 flex items-center justify-between px-4 border-b border-border bg-card/50">
+            <div className="flex items-center gap-2">
+              {selectedFile && (
+                <>
+                  <span className="text-sm font-medium">{selectedFile.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedFile.path}
+                  </span>
+                </>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              className="gap-2"
+            >
+              {showAnalytics ? (
+                <>
+                  <PanelRightClose className="h-4 w-4" />
+                  Hide Analytics
+                </>
+              ) : (
+                <>
+                  <PanelRight className="h-4 w-4" />
+                  Show Analytics
+                </>
+              )}
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAnalytics(!showAnalytics)}
-            className="gap-2"
-          >
-            {showAnalytics ? (
-              <>
-                <PanelRightClose className="h-4 w-4" />
-                Hide Analytics
-              </>
-            ) : (
-              <>
-                <PanelRight className="h-4 w-4" />
-                Show Analytics
-              </>
-            )}
-          </Button>
-        </div>
+        )}
 
         {/* Editor Content */}
         <div className="flex-1 flex min-h-0">
-          {/* Code Editor */}
+          {/* Code Editor or Flag Insights Dashboard */}
           <div className="flex-1 min-w-0">
-            {selectedFile ? (
+            {selectedFlagForInsights ? (
+              <FlagInsightsDashboard
+                flag={selectedFlagForInsights}
+                onClose={handleCloseFlagInsights}
+              />
+            ) : selectedFile ? (
               <CodeEditor
                 file={selectedFile}
                 analytics={analytics || undefined}
@@ -117,8 +137,8 @@ function EditorContent() {
             )}
           </div>
 
-          {/* Analytics Panel */}
-          {showAnalytics && (
+          {/* Analytics Panel - hide when viewing flag insights */}
+          {showAnalytics && !selectedFlagForInsights && (
             <div className="w-80 flex-shrink-0 border-l border-border bg-card/30">
               <AnalyticsPanel
                 analytics={analytics}

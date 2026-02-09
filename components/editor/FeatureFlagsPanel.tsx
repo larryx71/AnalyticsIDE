@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Check,
   User,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,7 @@ interface FeatureFlagsPanelProps {
   onFlagToggle?: (flagId: string, enabled: boolean) => void;
   onFlagRemove?: (flagId: string) => void;
   onLineClick?: (line: number) => void;
+  onViewInsights?: (flag: FeatureFlag) => void;
 }
 
 const statusConfig: Record<
@@ -68,6 +70,7 @@ export function FeatureFlagsPanel({
   onFlagToggle,
   onFlagRemove,
   onLineClick,
+  onViewInsights,
 }: FeatureFlagsPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [localFlags, setLocalFlags] = useState<Record<string, FeatureFlag>>({});
@@ -156,37 +159,53 @@ export function FeatureFlagsPanel({
                       <CardContent className="p-3 space-y-2">
                         {/* Flag Header */}
                         <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <span className="text-sm font-medium line-clamp-2">
+                              {flag.name}
+                            </span>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium truncate">
-                                {flag.name}
-                              </span>
                               <Badge
                                 variant="outline"
                                 className={cn(
-                                  "text-[10px] shrink-0",
+                                  "text-[10px]",
                                   config.color,
                                   config.bgColor
                                 )}
                               >
                                 {config.label}
                               </Badge>
+                              <code className="text-[10px] text-muted-foreground font-mono truncate">
+                                {flag.key}
+                              </code>
                             </div>
-                            <code className="text-[10px] text-muted-foreground font-mono">
-                              {flag.key}
-                            </code>
                           </div>
 
-                          {/* Toggle or Remove Button */}
-                          {isToggleable && (
-                            <Switch
-                              checked={flagState.status === "active"}
-                              onCheckedChange={(checked) =>
-                                handleToggle(flag, checked)
-                              }
-                              className="shrink-0"
-                            />
-                          )}
+                          <div className="flex items-center gap-1 shrink-0">
+                            {/* Insights Button */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewInsights?.(flag);
+                              }}
+                              title="View insights"
+                            >
+                              <BarChart3 className="h-3.5 w-3.5" />
+                            </Button>
+
+                            {/* Toggle or Remove Button */}
+                            {isToggleable && (
+                              <Switch
+                                checked={flagState.status === "active"}
+                                onCheckedChange={(checked) =>
+                                  handleToggle(flag, checked)
+                                }
+                                className="scale-90"
+                              />
+                            )}
+                          </div>
                         </div>
 
                         {/* Description */}
