@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TaskList } from "@/components/dashboard/TaskList";
-import { StatsOverview } from "@/components/dashboard/StatsOverview";
+import { PRStatsOverview } from "@/components/dashboard/PRStatsOverview";
 import { AIFixPreview } from "@/components/dashboard/AIFixPreview";
 import { PriorityTask } from "@/lib/mock-data/tasks";
 import { Sparkles, Brain, TrendingUp } from "lucide-react";
@@ -50,9 +50,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Stats Overview */}
+        {/* PR Stats Overview */}
         <div className="mb-8">
-          <StatsOverview />
+          <PRStatsOverview />
         </div>
 
         {/* Main Content */}
